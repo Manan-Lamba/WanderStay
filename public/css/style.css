@@ -1,0 +1,12 @@
+/* navbar */
+.custom-navbar{
+    height: 4rem;
+}
+
+.fa-solid.fa-sailboat{
+    color:red;
+}
+
+.custom-navbar-brand{
+    color:red;
+}

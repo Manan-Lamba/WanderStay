@@ -1,11 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+<%- layout("/layouts/boilerplate") %>
+
     <h2>All Listings</h2>
     <form method="GET" action="/listings/new">
         <button>Create New Listing</button>
@@ -17,6 +11,4 @@
             </li>
         <% } %>
     </ul>
-</body>
-</html>
 

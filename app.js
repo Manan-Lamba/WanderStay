@@ -3,6 +3,7 @@ const app = express();
 const mongoose = require('mongoose');
 const Listing = require('./Models/Listing');
 const methodOverride = require('method-override');
+const ejsMate = require("ejs-mate");
 const PORT = 8080;
 
 // connecting mongoose with our database
@@ -28,6 +29,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // write all your code
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+app.engine("ejs", ejsMate); // Tell Express to use ejs-mate
 
 // to show all listings -> index route 
 app.get("/listings", async (req, res) => {
