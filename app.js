@@ -45,7 +45,15 @@ app.get("/listings/new", (req, res) => {
 
 app.post("/listings", async (req, res) => {
     let listing = req.body;
-    let newListing = await Listing.create(listing);
+    console.log(listing);
+    let url = req.body.image;
+    let newListing = new Listing(listing);
+    console.log(newListing);
+    newListing.image = {
+        filename: "listingimage",
+        url: url
+    };
+    await newListing.save();
     console.log(newListing);
     res.redirect("/listings");
 });
@@ -70,6 +78,12 @@ app.patch("/listings/:id", async (req, res) => {
     let id = req.params.id;
     console.log("Old listing")
     console.log(req.body);
+    let url = req.body.image;
+    delete req.body.image;
+    req.body.image = {
+        filename: "listingimage",
+        url: url
+    };
     let listing = await Listing.findByIdAndUpdate(id, req.body, {new: true});
     console.log("New listing")
     console.log(listing);

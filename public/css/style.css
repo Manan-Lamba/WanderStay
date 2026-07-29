@@ -10,3 +10,48 @@
 .custom-navbar-brand{
     color:red;
 }
+
+/* card component */
+.card{
+    border: none;
+    margin-bottom: 2rem;
+}
+
+.card-img-top{
+    border-radius: 1rem;
+}
+
+.card-body{
+    padding: 0px;
+}
+
+.custom-link{
+    text-decoration: none;
+    color: inherit;
+}
+
+
+/* card effects */
+.card-img-overlay:hover{
+    background-color: white;
+    opacity: 0.2;
+}
+
+/* form elements */
+.add-btn{
+    background-color:rgb(34, 34, 166);
+    display: block;
+}
+
+.add-btn:hover{
+    background-color:rgb(27, 27, 140);
+}
+
+.custom-label{
+    display: block;
+    text-align: left;
+}
+
+.edit-btn{
+    display:block;
+}
