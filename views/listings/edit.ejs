@@ -4,36 +4,54 @@
     <br>
 
     <div class="container text-center">
-        <form method="POST" action="/listings/<%=listing._id%>?_method=PATCH">
+        <form method="POST" action="/listings/<%=listing._id%>?_method=PATCH" class="needs-validation" novalidate>
             <div class="row">
                 <div class="col-md-12 mb-3">
                     <label for="title" class="form-label custom-label"><b>Title: </b></label>
-                    <input name="title" id="title" class="form-control" value="<%=listing.title%>">
+                    <input name="title" id="title" class="form-control" value="<%=listing.title%>" required>
+                    <div class="invalid-feedback">
+                        Title is required.
+                    </div>
                 </div>
                 <div class="col-md-12 mb-3">
                     <label for="description" class="form-label custom-label"><b>Description: </b></label>
                     <textarea name="description" id="description" 
-                    class="form-control"><%=listing.description%></textarea>
+                    class="form-control" required><%=listing.description%></textarea>
+                    <div class="invalid-feedback">
+                        Description is required.
+                    </div>
                 </div>
                 <div class="col-md-12 mb-3">
                     <label for="image" class="form-label custom-label"><b>Image_URL: </b></label>
                     <input name="image" id="image" class="form-control"
-                    value="<%= listing.image.url %>">
+                    value="<%= listing.image.url %>" required>
+                    <div class="invalid-feedback">
+                        Enter a valid url.
+                    </div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="price" class="form-label custom-label"><b>Price: </b></label>
                     <input name="price" id="price" class="form-control"
-                     value="<%=listing.price%>">
+                     value="<%=listing.price%>" required>
+                     <div class="invalid-feedback">
+                        Enter a valid Price.
+                    </div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="location" class="form-label custom-label"><b>Location: </b></label>
                     <input name="location" id="location" class="form-control"
-                     value="<%=listing.location%>">
+                     value="<%=listing.location%>" required>
+                     <div class="invalid-feedback">
+                        Location is required.
+                    </div>
                 </div>
                 <div class="col-md-12 mb-3">
                     <label for="country" class="form-label custom-label"><b>Country: </b></label>
                     <input name="country" id="country" class="form-control"
-                     value="<%=listing.country%>">
+                     value="<%=listing.country%>" required>
+                     <div class="invalid-feedback">
+                        Country is required.
+                    </div>
                 </div>
             </div>
             <button class="btn btn-outline-success edit-btn">Edit</button>
