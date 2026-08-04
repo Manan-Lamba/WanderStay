@@ -4,6 +4,10 @@ const mongoose = require('mongoose');
 const Listing = require('./Models/Listing');
 const methodOverride = require('method-override');
 const ejsMate = require("ejs-mate");
+const ExpressError = require("./utils/ExpressError");
+const wrapAsync = require("./utils/wrapAsync.js");
+const cors = require("cors");
+const listingSchema = require("./schema.js");
 const PORT = 8080;
 
 // connecting mongoose with our database
@@ -27,54 +31,71 @@ const path = require("path");
 app.use(express.static(path.join(__dirname, "public")));
 
 // write all your code
+app.use(cors({
+    origin: "https://hoppscotch.io"
+}));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.engine("ejs", ejsMate); // Tell Express to use ejs-mate
 
+// validate listing middleware
+// route specific
+const validateListing = (req, res, next) => {
+    let result = listingSchema.validate(req.body);
+    if(result.error){
+        throw new ExpressError(404, result.error.details[0].message);
+    }
+    next();
+}
+
 // to show all listings -> index route 
-app.get("/listings", async (req, res) => {
+app.get("/listings", wrapAsync(async (req, res) => {
     const listings = await Listing.find();
     console.log(listings);
     res.render("listings/index", {listings});
-});
+}));
 
 // create route -> new post
 app.get("/listings/new", (req, res) => {
     res.render("listings/new");
 });
 
-app.post("/listings", async (req, res) => {
+app.post("/listings", validateListing, wrapAsync(async (req, res) => {
     let listing = req.body;
+    console.log("--------------");
     console.log(listing);
     let url = req.body.image;
     let newListing = new Listing(listing);
+    console.log("--------------");
     console.log(newListing);
     newListing.image = {
         filename: "listingimage",
         url: url
     };
     await newListing.save();
+    console.log("--------------");
     console.log(newListing);
     res.redirect("/listings");
-});
+}));
 
 // show route -> detailed route
-app.get("/listings/:id", async (req, res) => {
+app.get("/listings/:id", wrapAsync(async (req, res) => {
     let id = req.params.id;
     const listing = await Listing.findById(id);
     console.log(listing);
     res.render("listings/show", {listing});
-});
+}));
 
 // update route
-app.get("/listings/:id/edit", async (req, res) => {
+app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
     let id = req.params.id;
     const listing = await Listing.findById(id);
     console.log(listing);
     res.render("listings/edit", {listing});
-});
+}));
 
-app.patch("/listings/:id", async (req, res) => {
+app.patch("/listings/:id", validateListing, wrapAsync(async (req, res) => {
     let id = req.params.id;
     console.log("Old listing")
     console.log(req.body);
@@ -88,13 +109,26 @@ app.patch("/listings/:id", async (req, res) => {
     console.log("New listing")
     console.log(listing);
     res.redirect(`/listings/${id}`);
-});
+}));
 
 // delete listing
-app.delete("/listings/:id", async (req, res) => {
+app.delete("/listings/:id", wrapAsync(async (req, res) => {
     let id = req.params.id;
     await Listing.findByIdAndDelete(id);
     res.redirect("/listings");
+}));
+
+// middleware for all types of request
+// it is placed at bottom so as to run when no route matches
+// since express executes code from top to bottom
+app.use((req, res, next) => {
+    next(new ExpressError(404, "Page Not Found"));
+});
+
+// error handling middleware
+app.use((err, req, res, next) => {
+    let {status = 500, message = "Something went Wrong"} = err;
+    res.status(status).render("listings/error", {message});
 });
 
 // at the end start your server
