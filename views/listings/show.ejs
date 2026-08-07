@@ -11,11 +11,14 @@
                     </h3>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <b><%= listing.description %></b>
+                            <b>
+                                <%= listing.description %>
+                            </b>
                         </li>
                         <li class="list-group-item"><b>Price </b>
-                            <%= Number(listing.price).toLocaleString('en-IN', {style: 'currency',currency: 'INR',maximumFractionDigits: 0}); %>
-                            /night
+                            <%= Number(listing.price).toLocaleString('en-IN', {style: 'currency' ,currency: 'INR'
+                                ,maximumFractionDigits: 0}); %>
+                                /night
                         </li>
                         <li class="list-group-item"><b>Location </b> <i class="fa-solid fa-location-dot"></i>
                             <%= listing.location %>, <%= listing.country %>
@@ -29,6 +32,24 @@
                         <button class="btn btn-outline-danger">Delete</button>
                     </form>
                 </div>
+            </div>
+            <div>
+                <form method="POST" action="/listings/<%=listing._id%>/reviews">
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Rating</label>
+                        <input type="range" class="form-range" id="rating" name="rating" aria-describedby="rating"
+                        required min="1" max="5">
+                        <div id="rating" class="form-text">Please give your valuable rating.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Comment</label>
+                        <textarea name="comment" id="comment" class="form-control" required aria-describedby="comment"></textarea>
+                        <div id="comment" class="form-text">Please add your valuable comment.</div>
+                    </div>
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

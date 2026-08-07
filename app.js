@@ -8,6 +8,7 @@ const ExpressError = require("./utils/ExpressError");
 const wrapAsync = require("./utils/wrapAsync.js");
 const cors = require("cors");
 const listingSchema = require("./schema.js");
+const Review = require('./Models/Review.js');
 const PORT = 8080;
 
 // connecting mongoose with our database
@@ -44,6 +45,7 @@ app.engine("ejs", ejsMate); // Tell Express to use ejs-mate
 const validateListing = (req, res, next) => {
     let result = listingSchema.validate(req.body);
     if(result.error){
+        console.log(result.error.details);
         throw new ExpressError(404, result.error.details[0].message);
     }
     next();
@@ -117,6 +119,24 @@ app.delete("/listings/:id", wrapAsync(async (req, res) => {
     await Listing.findByIdAndDelete(id);
     res.redirect("/listings");
 }));
+
+// create route -> for reviews
+app.post("/listings/:id/reviews", async(req, res) => {
+    let id = req.params.id;
+    let review = new Review(req.body);
+    console.log(review);
+
+    // reference this review to listing
+    let listing = await Listing.findById(id);
+    console.log(listing);
+    listing.reviews.push(review._id);
+
+    await review.save();
+    await listing.save();
+    console.log(listing);
+    res.send("review added successfully");
+
+});
 
 // middleware for all types of request
 // it is placed at bottom so as to run when no route matches
