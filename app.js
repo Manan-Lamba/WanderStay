@@ -7,7 +7,7 @@ const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError");
 const wrapAsync = require("./utils/wrapAsync.js");
 const cors = require("cors");
-const listingSchema = require("./schema.js");
+const {listingSchema, reviewSchema} = require("./schema.js");
 const Review = require('./Models/Review.js');
 const PORT = 8080;
 
@@ -46,6 +46,15 @@ const validateListing = (req, res, next) => {
     let result = listingSchema.validate(req.body);
     if(result.error){
         console.log(result.error.details);
+        throw new ExpressError(404, result.error.details[0].message);
+    }
+    next();
+}
+
+// validate review schema middleware
+const validateReview = (req, res, next) => {
+    let result = reviewSchema.validate(req.body);
+    if(result.error){
         throw new ExpressError(404, result.error.details[0].message);
     }
     next();
@@ -121,7 +130,7 @@ app.delete("/listings/:id", wrapAsync(async (req, res) => {
 }));
 
 // create route -> for reviews
-app.post("/listings/:id/reviews", async(req, res) => {
+app.post("/listings/:id/reviews", validateReview, wrapAsync(async(req, res) => {
     let id = req.params.id;
     let review = new Review(req.body);
     console.log(review);
@@ -136,7 +145,7 @@ app.post("/listings/:id/reviews", async(req, res) => {
     console.log(listing);
     res.send("review added successfully");
 
-});
+}));
 
 // middleware for all types of request
 // it is placed at bottom so as to run when no route matches

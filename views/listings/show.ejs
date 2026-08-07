@@ -34,17 +34,24 @@
                 </div>
             </div>
             <div>
-                <form method="POST" action="/listings/<%=listing._id%>/reviews">
+                <form method="POST" action="/listings/<%=listing._id%>/reviews" class="needs-validation" novalidate>
                     <div class="mb-3">
                         <label for="rating" class="form-label">Rating</label>
                         <input type="range" class="form-range" id="rating" name="rating" aria-describedby="rating"
-                        required min="1" max="5">
+                            required min="1" max="5">
                         <div id="rating" class="form-text">Please give your valuable rating.</div>
+                        <div class="invalid-feedback">
+                            Rating is required.
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="comment" class="form-label">Comment</label>
-                        <textarea name="comment" id="comment" class="form-control" required aria-describedby="comment"></textarea>
+                        <textarea name="comment" id="comment" class="form-control" required
+                            aria-describedby="comment"></textarea>
                         <div id="comment" class="form-text">Please add your valuable comment.</div>
+                        <div class="invalid-feedback">
+                            Comment is required.
+                        </div>
                     </div>
                     <div class="mb-3">
                         <button type="submit" class="btn btn-primary">Submit</button>
