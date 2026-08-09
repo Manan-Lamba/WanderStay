@@ -63,7 +63,7 @@ const validateReview = (req, res, next) => {
 // to show all listings -> index route 
 app.get("/listings", wrapAsync(async (req, res) => {
     const listings = await Listing.find();
-    console.log(listings);
+    // console.log(listings);
     res.render("listings/index", {listings});
 }));
 
@@ -93,7 +93,7 @@ app.post("/listings", validateListing, wrapAsync(async (req, res) => {
 // show route -> detailed route
 app.get("/listings/:id", wrapAsync(async (req, res) => {
     let id = req.params.id;
-    const listing = await Listing.findById(id);
+    const listing = await Listing.findById(id).populate("reviews");
     console.log(listing);
     res.render("listings/show", {listing});
 }));
@@ -143,7 +143,7 @@ app.post("/listings/:id/reviews", validateReview, wrapAsync(async(req, res) => {
     await review.save();
     await listing.save();
     console.log(listing);
-    res.send("review added successfully");
+    res.redirect(`/listings/${id}`);
 
 }));
 
