@@ -147,6 +147,21 @@ app.post("/listings/:id/reviews", validateReview, wrapAsync(async(req, res) => {
 
 }));
 
+// deleting reviews
+app.delete("/listings/:id/reviews/:reviewId", async (req, res) => {
+    let reviewId = req.params.reviewId;
+    let listingId = req.params.id;
+
+    //remove reviewId from listing
+    let newListing = await Listing.findByIdAndUpdate(listingId, {
+        $pull: {reviews: reviewId}
+    });
+
+    // delete review document
+    await Review.findByIdAndDelete(reviewId);
+    res.redirect(`/listings/${listingId}`);
+});
+
 // middleware for all types of request
 // it is placed at bottom so as to run when no route matches
 // since express executes code from top to bottom

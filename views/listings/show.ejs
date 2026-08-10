@@ -67,7 +67,9 @@
                             <div class="card-body">
                                 <h5 class="card-title">~WanderStay User</h5>
                                 <p class="card-text"><%= review.comment %>, <%= review.rating %> stars.</p>
-                                <a href="#" class="btn btn-primary">Go somewhere</a>
+                                <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+                                    <button class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-trash-can"> Delete</i></button>
+                                </form>
                             </div>
                         </div>
                     </div>
