@@ -15,7 +15,20 @@ const reviewSchema = Joi.object({
     comment: Joi.string().required()
 });
 
+const signupSchema = Joi.object({
+    email: Joi.string().email().required(),
+    username: Joi.string().required(),
+    password: Joi.string().required()
+});
+
+const loginSchema = Joi.object({
+    username: Joi.string().required(),
+    password: Joi.string().required()
+});
+
 module.exports = {
     listingSchema,
-    reviewSchema
+    reviewSchema,
+    signupSchema,
+    loginSchema
 };

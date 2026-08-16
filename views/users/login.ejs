@@ -1,0 +1,26 @@
+<%- layout("/layouts/boilerplate") %>
+
+    <form class="needs-validation" novalidate method="POST" action="/login">
+        <div class="row justify-content-center">
+            <div class="col-md-7 mb-3 mt-5">
+                <h1>Login</h1>
+            </div>
+            <div class="col-md-7 mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+                <div class="invalid-feedback">
+                    username is required.
+                </div>
+            </div>
+            <div class="col-md-7 mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+                <div class="invalid-feedback">
+                    password is required.
+                </div>
+            </div>
+            <div class="col-md-7">
+                <button class="btn btn-success"> Login </button>
+            </div>
+        </div>
+    </form>

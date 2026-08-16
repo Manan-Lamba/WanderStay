@@ -7,6 +7,11 @@ const ExpressError = require("./utils/ExpressError");
 const cors = require("cors");
 const listingRoutes = require('./routes/listings.js');
 const reviewRoutes = require('./routes/reviews.js');
+const userRoutes = require('./routes/users.js');
+const session = require("express-session");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./Models/User.js")
 const PORT = 8080;
 
 // connecting mongoose with our database
@@ -38,6 +43,29 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.engine("ejs", ejsMate); // Tell Express to use ejs-mate
 
+// session middleware
+app.use(session({
+    secret: "mysecretvalue",
+    resave: false,
+    saveUninitialized: false
+}));
+
+// initialise passport for express app middleware
+app.use(passport.initialize());
+
+// connect passport with express session
+app.use(passport.session());
+
+// configure local strategy
+passport.use(new LocalStrategy(User.authenticate()));
+
+// configure serializeUser
+passport.serializeUser(User.serializeUser());
+
+// configure deserializeUser
+passport.deserializeUser(User.deserializeUser());
+
+
 // use listings route
 // whenever a listing starts with "/listings" go to listingRoutes
 app.use("/listings", listingRoutes);
@@ -47,7 +75,9 @@ app.use("/listings", listingRoutes);
 // whenever a review starts with "/listings/:id/reviews" go to reviewSchema
 app.use("/listings/:id/reviews", reviewRoutes);
 
-
+// use listings route
+// whenever a user starts with "/" go to listingRoutes
+app.use("/", userRoutes);
 
 // middleware for all types of request
 // it is placed at bottom so as to run when no route matches
