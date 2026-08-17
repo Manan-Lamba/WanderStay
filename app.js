@@ -65,6 +65,11 @@ passport.serializeUser(User.serializeUser());
 // configure deserializeUser
 passport.deserializeUser(User.deserializeUser());
 
+// Implementing middleware for res.locals
+app.use((req, res, next) => {
+    res.locals.currUser = req.user;
+    next();
+})
 
 // use listings route
 // whenever a listing starts with "/listings" go to listingRoutes

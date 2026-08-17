@@ -60,4 +60,14 @@ router.post(
     }
 );
 
+// logout route
+router.get("/logout", (req, res, next) => {
+    req.logout((err) => {
+        if(err){
+            return next(err);
+        }
+        res.send("logout successful");
+    });
+});
+
 module.exports = router;
