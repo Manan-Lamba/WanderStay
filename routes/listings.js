@@ -22,6 +22,14 @@ const validateListing = (req, res, next) => {
     next();
 }
 
+// connecting login route
+const isLoggedIn = (req, res, next) => {
+    if(!req.isAuthenticated()){
+        return res.redirect("/login");
+    }
+    next();
+};
+
 // to show all listings -> index route 
 router.get("/", wrapAsync(async (req, res) => {
     const listings = await Listing.find();
@@ -30,7 +38,7 @@ router.get("/", wrapAsync(async (req, res) => {
 }));
 
 // create route -> new post
-router.get("/new", (req, res) => {
+router.get("/new", isLoggedIn, (req, res) => {
     res.render("listings/new");
 });
 
@@ -61,7 +69,7 @@ router.get("/:id", wrapAsync(async (req, res) => {
 }));
 
 // update route
-router.get("/:id/edit", wrapAsync(async (req, res) => {
+router.get("/:id/edit", isLoggedIn, wrapAsync(async (req, res) => {
     let id = req.params.id;
     const listing = await Listing.findById(id);
     console.log(listing);
@@ -85,7 +93,7 @@ router.patch("/:id", validateListing, wrapAsync(async (req, res) => {
 }));
 
 // delete listing
-router.delete("/:id", wrapAsync(async (req, res) => {
+router.delete("/:id", isLoggedIn, wrapAsync(async (req, res) => {
     let id = req.params.id;
     await Listing.findByIdAndDelete(id);
     res.redirect("/");
