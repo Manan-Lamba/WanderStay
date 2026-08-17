@@ -32,16 +32,21 @@ router.get("/signup", (req, res) => {
     res.render("users/register");
 });
 
-router.post("/signup", validateSignup, wrapAsync(async (req, res) => {
+router.post("/signup", validateSignup, wrapAsync(async (req, res, next) => {
         let { username, email, password } = req.body;
         const user = new User({
             email,
             username
         });
 
-        const user1 = await User.register(user, password);
-        console.log(user1);
-        res.redirect("/login");
+        const regUser = await User.register(user, password);
+        console.log(regUser);
+        req.login(regUser, (err) => {
+            if(err){
+                return next(err);
+            }
+            res.send("signup and login successful");
+        })
 }));
 
 //login a user
