@@ -47,7 +47,11 @@ app.engine("ejs", ejsMate); // Tell Express to use ejs-mate
 app.use(session({
     secret: "mysecretvalue",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: false
+    }
 }));
 
 // initialise passport for express app middleware

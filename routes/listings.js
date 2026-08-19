@@ -25,6 +25,7 @@ const validateListing = (req, res, next) => {
 // connecting login route
 const isLoggedIn = (req, res, next) => {
     if(!req.isAuthenticated()){
+        req.session.returnTo = req.originalUrl;
         return res.redirect("/login");
     }
     next();

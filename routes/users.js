@@ -4,13 +4,13 @@ const mongoose = require('mongoose');
 const User = require("../Models/User");
 const passport = require("passport");
 const wrapAsync = require("../utils/wrapAsync.js");
-const {signupSchema, loginSchema} = require("../schema.js");
+const { signupSchema, loginSchema } = require("../schema.js");
 const ExpressError = require("../utils/ExpressError");
 
 // Adding Server Side validation for signup
 const validateSignup = async (req, res, next) => {
     let result = signupSchema.validate(req.body);
-    if(result.error){
+    if (result.error) {
         console.log(result.error.details);
         throw new ExpressError(400, result.error.details[0].message);
     }
@@ -20,7 +20,7 @@ const validateSignup = async (req, res, next) => {
 // Adding Server Side validation for signup
 const validatelogin = async (req, res, next) => {
     let result = loginSchema.validate(req.body);
-    if(result.error){
+    if (result.error) {
         console.log(result.error.details);
         throw new ExpressError(400, result.error.details[0].message);
     }
@@ -33,42 +33,45 @@ router.get("/signup", (req, res) => {
 });
 
 router.post("/signup", validateSignup, wrapAsync(async (req, res, next) => {
-        let { username, email, password } = req.body;
-        const user = new User({
-            email,
-            username
-        });
+    let { username, email, password } = req.body;
+    const user = new User({
+        email,
+        username
+    });
 
-        const regUser = await User.register(user, password);
-        console.log(regUser);
-        req.login(regUser, (err) => {
-            if(err){
-                return next(err);
-            }
-            res.send("signup and login successful");
-        })
+    const regUser = await User.register(user, password);
+    console.log(regUser);
+    req.login(regUser, (err) => {
+        if (err) {
+            return next(err);
+        }
+        res.send("signup and login successful");
+    })
 }));
 
 //login a user
 router.get("/login", (req, res) => {
+    console.log("GET session ID:", req.session.id);
+    console.log("GET returnTo:", req.session.returnTo);
     res.render("users/login");
 });
 
-router.post(
-    "/login",
-    validatelogin,
-    passport.authenticate("local", {
-        failureRedirect: "/login"
-    }),
+router.post("/login", validatelogin,
+    passport.authenticate("local",
+        {
+            failureRedirect: "/login",
+            keepSessionInfo: true
+        }),
     (req, res) => {
-        res.send("login successfully");
-    }
-);
+        const goTo = req.session.returnTo || "/listings";
+        delete req.session.returnTo;
+        res.redirect(goTo);
+    });
 
 // logout route
 router.get("/logout", (req, res, next) => {
     req.logout((err) => {
-        if(err){
+        if (err) {
             return next(err);
         }
         res.send("logout successful");
