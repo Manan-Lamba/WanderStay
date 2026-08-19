@@ -6,6 +6,7 @@ const wrapAsync = require("../utils/wrapAsync.js");
 const ExpressError = require("../utils/ExpressError");
 const {reviewSchema} = require("../schema.js");
 const Listing = require('../Models/Listing');
+const {isLoggedIn} = require("../middleware.js");
 
 
 // validate review schema middleware
@@ -17,12 +18,25 @@ const validateReview = (req, res, next) => {
     next();
 }
 
+// authorization middleware for reviews
+const isOwner = async (req, res, next) => {
+    let reviewId = req.params.reviewId;
+    let review = await Review.findById(reviewId);
+    if(!review){
+        return next(new ExpressError(404, "Page Not Found"));
+    }
+    if(req.user._id.equals(review.author)){
+        return next();
+    }
+    res.send("ACCESS DENIED: User not authorized");
+}
 
 // create route -> for reviews
 // remove common prefix
-router.post("/", validateReview, wrapAsync(async(req, res) => {
+router.post("/", isLoggedIn, validateReview, wrapAsync(async(req, res) => {
     let id = req.params.id;
     let review = new Review(req.body);
+    review.author = req.user._id;
     console.log(review);
 
     // reference this review to listing
@@ -38,7 +52,7 @@ router.post("/", validateReview, wrapAsync(async(req, res) => {
 }));
 
 // deleting reviews
-router.delete("/:reviewId", wrapAsync(async (req, res) => {
+router.delete("/:reviewId", isLoggedIn, isOwner, wrapAsync(async (req, res) => {
     let reviewId = req.params.reviewId;
     let listingId = req.params.id;
 

@@ -11,7 +11,9 @@
                     </h3>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <span>Owned by-<i><%= listing.owner.username %></i></span>
+                            <span>Owned by-<i>
+                                    <%= listing.owner.username %>
+                                </i></span>
                         </li>
                         <li class="list-group-item">
                             <b>
@@ -37,46 +39,63 @@
                 </div>
             </div>
             <div>
-                <form method="POST" action="/listings/<%=listing._id%>/reviews" class="needs-validation" novalidate>
-                    <div class="mb-3">
-                        <label for="rating" class="form-label">Rating</label>
-                        <input type="range" class="form-range" id="rating" name="rating" aria-describedby="rating"
-                            required min="1" max="5">
-                        <div id="rating" class="form-text">Please give your valuable rating.</div>
-                        <div class="invalid-feedback">
-                            Rating is required.
+                <% if(currUser){ %>
+                    <form method="POST" action="/listings/<%=listing._id%>/reviews" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating</label>
+                            <input type="range" class="form-range" id="rating" name="rating" aria-describedby="rating"
+                                required min="1" max="5">
+                            <div id="rating" class="form-text">Please give your valuable rating.</div>
+                            <div class="invalid-feedback">
+                                Rating is required.
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="comment" class="form-label">Comment</label>
-                        <textarea name="comment" id="comment" class="form-control" required
-                            aria-describedby="comment"></textarea>
-                        <div id="comment" class="form-text">Please add your valuable comment.</div>
-                        <div class="invalid-feedback">
-                            Comment is required.
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Comment</label>
+                            <textarea name="comment" id="comment" class="form-control" required
+                                aria-describedby="comment"></textarea>
+                            <div id="comment" class="form-text">Please add your valuable comment.</div>
+                            <div class="invalid-feedback">
+                                Comment is required.
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </div>
-                </form>
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                    <% } %>
+
             </div>
             <div>
                 <h2>All Reviews</h2>
                 <div class="row">
-                    <% for(let review of listing.reviews){ %>
-                    <div class="col-md-5 review-card mt-3 mb-3 me-5 ms-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">~WanderStay User</h5>
-                                <p class="card-text"><%= review.comment %>, <%= review.rating %> stars.</p>
-                                <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
-                                    <button class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-trash-can"> Delete</i></button>
-                                </form>
+                    <% if(listing.reviews.length > 0){ %>
+                        <% for(let review of listing.reviews){ %>
+                            <div class="col-md-5 review-card mt-3 mb-3 me-5 ms-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">~<%=review.author.username %></h5>
+                                        <p class="card-text">
+                                            <%= review.comment %>, <%= review.rating %> stars.
+                                        </p>
+                                        <form method="POST"
+                                            action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+                                            <button class="btn btn-outline-danger btn-sm"><i
+                                                    class="fa-solid fa-trash-can"> Delete</i></button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                <% } %>
+                            <% } %>
+                                <% }else{ %>
+                                    <div class="col-md-5  mt-3 mb-3 me-5 ">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <p class="card-text">No reviews for this listing.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% } %>
                 </div>
             </div>
         </div>

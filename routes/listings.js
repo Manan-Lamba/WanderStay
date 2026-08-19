@@ -5,7 +5,7 @@ const Listing = require('../Models/Listing');
 const wrapAsync = require("../utils/wrapAsync.js");
 const ExpressError = require("../utils/ExpressError");
 const {listingSchema} = require("../schema.js");
-
+const {isLoggedIn} = require("../middleware.js");
 
 
 // replace app with router
@@ -22,14 +22,7 @@ const validateListing = (req, res, next) => {
     next();
 }
 
-// connecting login route
-const isLoggedIn = (req, res, next) => {
-    if(!req.isAuthenticated()){
-        req.session.returnTo = req.originalUrl;
-        return res.redirect("/login");
-    }
-    next();
-};
+
 
 // Authorization middleware for listings
 const isOwner = async (req, res, next) => {
@@ -78,7 +71,14 @@ router.post("/", validateListing, isLoggedIn, wrapAsync(async (req, res) => {
 // show route -> detailed route
 router.get("/:id", wrapAsync(async (req, res) => {
     let id = req.params.id;
-    const listing = await Listing.findById(id).populate("reviews").populate("owner");
+    
+    const listing = await Listing.findById(id).populate({
+    path: "reviews",       // populate reviews
+    populate: {
+        path: "author"     // then populate author inside each review
+    }
+}).populate("owner");
+
     console.log(listing);
     res.render("listings/show", { listing });
 }));
