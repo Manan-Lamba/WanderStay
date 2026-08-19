@@ -30,6 +30,19 @@ const isLoggedIn = (req, res, next) => {
     next();
 };
 
+// Authorization middleware for listings
+const isOwner = async (req, res, next) => {
+    let id = req.params.id;
+    let listing = await Listing.findById(id);
+    if(!listing){
+        return next(new ExpressError(404, "Listing Not Found"));
+    }
+    if(listing.owner.equals(req.user._id)){
+        return next();
+    }
+    res.send("ACCESS DENIED: User not authorized");
+};
+
 // to show all listings -> index route 
 router.get("/", wrapAsync(async (req, res) => {
     const listings = await Listing.find();
@@ -42,7 +55,7 @@ router.get("/new", isLoggedIn, (req, res) => {
     res.render("listings/new");
 });
 
-router.post("/", validateListing, wrapAsync(async (req, res) => {
+router.post("/", validateListing, isLoggedIn, wrapAsync(async (req, res) => {
     let listing = req.body;
     console.log("--------------");
     console.log(listing);
@@ -54,6 +67,7 @@ router.post("/", validateListing, wrapAsync(async (req, res) => {
         filename: "listingimage",
         url: url
     };
+    newListing.owner = req.user._id;
     await newListing.save();
     console.log("--------------");
     console.log(newListing);
@@ -63,20 +77,20 @@ router.post("/", validateListing, wrapAsync(async (req, res) => {
 // show route -> detailed route
 router.get("/:id", wrapAsync(async (req, res) => {
     let id = req.params.id;
-    const listing = await Listing.findById(id).populate("reviews");
+    const listing = await Listing.findById(id).populate("reviews").populate("owner");
     console.log(listing);
     res.render("listings/show", { listing });
 }));
 
 // update route
-router.get("/:id/edit", isLoggedIn, wrapAsync(async (req, res) => {
+router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(async (req, res) => {
     let id = req.params.id;
     const listing = await Listing.findById(id);
     console.log(listing);
     res.render("listings/edit", { listing });
 }));
 
-router.patch("/:id", validateListing, wrapAsync(async (req, res) => {
+router.patch("/:id", validateListing, isOwner, wrapAsync(async (req, res) => {
     let id = req.params.id;
     console.log("Old listing")
     console.log(req.body);
@@ -93,7 +107,7 @@ router.patch("/:id", validateListing, wrapAsync(async (req, res) => {
 }));
 
 // delete listing
-router.delete("/:id", isLoggedIn, wrapAsync(async (req, res) => {
+router.delete("/:id", isLoggedIn, isOwner, wrapAsync(async (req, res) => {
     let id = req.params.id;
     await Listing.findByIdAndDelete(id);
     res.redirect("/");
