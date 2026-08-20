@@ -45,14 +45,13 @@ router.post("/signup", validateSignup, wrapAsync(async (req, res, next) => {
         if (err) {
             return next(err);
         }
-        res.send("signup and login successful");
+        req.flash("congratulation", "Welcome to WanderStay!");
+        res.redirect("/listings");
     })
 }));
 
 //login a user
 router.get("/login", (req, res) => {
-    console.log("GET session ID:", req.session.id);
-    console.log("GET returnTo:", req.session.returnTo);
     res.render("users/login");
 });
 
@@ -60,11 +59,13 @@ router.post("/login", validatelogin,
     passport.authenticate("local",
         {
             failureRedirect: "/login",
+            failureFlash: true,
             keepSessionInfo: true
         }),
     (req, res) => {
         const goTo = req.session.returnTo || "/listings";
         delete req.session.returnTo;
+        req.flash("congratulation", "Welcome back!");
         res.redirect(goTo);
     });
 
@@ -74,7 +75,8 @@ router.get("/logout", (req, res, next) => {
         if (err) {
             return next(err);
         }
-        res.send("logout successful");
+        req.flash("error", "You have been logged out.");
+        res.redirect("/listings");
     });
 });
 

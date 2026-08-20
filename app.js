@@ -9,6 +9,7 @@ const listingRoutes = require('./routes/listings.js');
 const reviewRoutes = require('./routes/reviews.js');
 const userRoutes = require('./routes/users.js');
 const session = require("express-session");
+const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./Models/User.js")
@@ -54,6 +55,8 @@ app.use(session({
     }
 }));
 
+app.use(flash());
+
 // initialise passport for express app middleware
 app.use(passport.initialize());
 
@@ -71,6 +74,9 @@ passport.deserializeUser(User.deserializeUser());
 
 // Implementing middleware for res.locals
 app.use((req, res, next) => {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    res.locals.congratulation = req.flash("congratulation");
     res.locals.currUser = req.user;
     next();
 })

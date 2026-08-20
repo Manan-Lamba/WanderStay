@@ -28,7 +28,8 @@ const isOwner = async (req, res, next) => {
     if(req.user._id.equals(review.author)){
         return next();
     }
-    res.send("ACCESS DENIED: User not authorized");
+    req.flash("error", "You are not authorized to perform this action.");
+    return res.redirect(`/listings/${req.params.id}`);
 }
 
 // create route -> for reviews
@@ -47,6 +48,7 @@ router.post("/", isLoggedIn, validateReview, wrapAsync(async(req, res) => {
     await review.save();
     await listing.save();
     console.log(listing);
+    req.flash("success", "Review created successfully!");
     res.redirect(`/listings/${id}`);
 
 }));
@@ -63,6 +65,7 @@ router.delete("/:reviewId", isLoggedIn, isOwner, wrapAsync(async (req, res) => {
 
     // delete review document
     await Review.findByIdAndDelete(reviewId);
+    req.flash("success", "Review deleted");
     res.redirect(`/listings/${listingId}`);
 }));
 

@@ -34,7 +34,8 @@ const isOwner = async (req, res, next) => {
     if(listing.owner.equals(req.user._id)){
         return next();
     }
-    res.send("ACCESS DENIED: User not authorized");
+   req.flash("error", "You are not authorized to perform this action.");
+   return res.redirect(`/listings/${id}`);
 };
 
 // to show all listings -> index route 
@@ -49,7 +50,7 @@ router.get("/new", isLoggedIn, (req, res) => {
     res.render("listings/new");
 });
 
-router.post("/", validateListing, isLoggedIn, wrapAsync(async (req, res) => {
+router.post("/", isLoggedIn, validateListing, wrapAsync(async (req, res) => {
     let listing = req.body;
     console.log("--------------");
     console.log(listing);
@@ -65,7 +66,8 @@ router.post("/", validateListing, isLoggedIn, wrapAsync(async (req, res) => {
     await newListing.save();
     console.log("--------------");
     console.log(newListing);
-    res.redirect("/");
+    req.flash("success", "🎉 Congratulations! Listing created successfully!");
+    res.redirect("/listings");
 }));
 
 // show route -> detailed route
@@ -104,14 +106,16 @@ router.patch("/:id", validateListing, isOwner, wrapAsync(async (req, res) => {
     let listing = await Listing.findByIdAndUpdate(id, req.body, { new: true });
     console.log("New listing")
     console.log(listing);
-    res.redirect(`/${id}`);
+    req.flash("success", "Listing updated successfully!");
+    res.redirect(`/listings/${id}`);
 }));
 
 // delete listing
 router.delete("/:id", isLoggedIn, isOwner, wrapAsync(async (req, res) => {
     let id = req.params.id;
     await Listing.findByIdAndDelete(id);
-    res.redirect("/");
+    req.flash("error", "Listing Deleted!");
+    res.redirect("/listings");
 }));
 
 module.exports = router;
