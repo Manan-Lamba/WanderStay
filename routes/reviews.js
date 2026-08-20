@@ -7,6 +7,7 @@ const ExpressError = require("../utils/ExpressError");
 const {reviewSchema} = require("../schema.js");
 const Listing = require('../Models/Listing');
 const {isLoggedIn} = require("../middleware.js");
+const reviewController = require("../controllers/reviews.js");
 
 
 // validate review schema middleware
@@ -34,39 +35,9 @@ const isOwner = async (req, res, next) => {
 
 // create route -> for reviews
 // remove common prefix
-router.post("/", isLoggedIn, validateReview, wrapAsync(async(req, res) => {
-    let id = req.params.id;
-    let review = new Review(req.body);
-    review.author = req.user._id;
-    console.log(review);
-
-    // reference this review to listing
-    let listing = await Listing.findById(id);
-    console.log(listing);
-    listing.reviews.push(review._id);
-
-    await review.save();
-    await listing.save();
-    console.log(listing);
-    req.flash("success", "Review created successfully!");
-    res.redirect(`/listings/${id}`);
-
-}));
+router.post("/", isLoggedIn, validateReview, wrapAsync(reviewController.createReview));
 
 // deleting reviews
-router.delete("/:reviewId", isLoggedIn, isOwner, wrapAsync(async (req, res) => {
-    let reviewId = req.params.reviewId;
-    let listingId = req.params.id;
-
-    //remove reviewId from listing
-    let newListing = await Listing.findByIdAndUpdate(listingId, {
-        $pull: {reviews: reviewId}
-    });
-
-    // delete review document
-    await Review.findByIdAndDelete(reviewId);
-    req.flash("success", "Review deleted");
-    res.redirect(`/listings/${listingId}`);
-}));
+router.delete("/:reviewId", isLoggedIn, isOwner, wrapAsync(reviewController.deleteReview));
 
 module.exports = router;

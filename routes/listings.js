@@ -6,6 +6,7 @@ const wrapAsync = require("../utils/wrapAsync.js");
 const ExpressError = require("../utils/ExpressError");
 const {listingSchema} = require("../schema.js");
 const {isLoggedIn} = require("../middleware.js");
+const listingController = require("../controllers/listings.js");
 
 
 // replace app with router
@@ -39,83 +40,22 @@ const isOwner = async (req, res, next) => {
 };
 
 // to show all listings -> index route 
-router.get("/", wrapAsync(async (req, res) => {
-    const listings = await Listing.find();
-    // console.log(listings);
-    res.render("listings/index", { listings });
-}));
+router.get("/", wrapAsync(listingController.index));
 
 // create route -> new post
-router.get("/new", isLoggedIn, (req, res) => {
-    res.render("listings/new");
-});
+router.get("/new", isLoggedIn, listingController.newListingForm);
 
-router.post("/", isLoggedIn, validateListing, wrapAsync(async (req, res) => {
-    let listing = req.body;
-    console.log("--------------");
-    console.log(listing);
-    let url = req.body.image;
-    let newListing = new Listing(listing);
-    console.log("--------------");
-    console.log(newListing);
-    newListing.image = {
-        filename: "listingimage",
-        url: url
-    };
-    newListing.owner = req.user._id;
-    await newListing.save();
-    console.log("--------------");
-    console.log(newListing);
-    req.flash("success", "🎉 Congratulations! Listing created successfully!");
-    res.redirect("/listings");
-}));
+router.post("/", isLoggedIn, validateListing, wrapAsync(listingController.createListing));
 
 // show route -> detailed route
-router.get("/:id", wrapAsync(async (req, res) => {
-    let id = req.params.id;
-    
-    const listing = await Listing.findById(id).populate({
-    path: "reviews",       // populate reviews
-    populate: {
-        path: "author"     // then populate author inside each review
-    }
-}).populate("owner");
-
-    console.log(listing);
-    res.render("listings/show", { listing });
-}));
+router.get("/:id", wrapAsync(listingController.showListing));
 
 // update route
-router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(async (req, res) => {
-    let id = req.params.id;
-    const listing = await Listing.findById(id);
-    console.log(listing);
-    res.render("listings/edit", { listing });
-}));
+router.get("/:id/edit", isLoggedIn, isOwner, wrapAsync(listingController.updateListingForm));
 
-router.patch("/:id", validateListing, isOwner, wrapAsync(async (req, res) => {
-    let id = req.params.id;
-    console.log("Old listing")
-    console.log(req.body);
-    let url = req.body.image;
-    delete req.body.image;
-    req.body.image = {
-        filename: "listingimage",
-        url: url
-    };
-    let listing = await Listing.findByIdAndUpdate(id, req.body, { new: true });
-    console.log("New listing")
-    console.log(listing);
-    req.flash("success", "Listing updated successfully!");
-    res.redirect(`/listings/${id}`);
-}));
+router.patch("/:id", validateListing, isOwner, wrapAsync(listingController.updateListing));
 
 // delete listing
-router.delete("/:id", isLoggedIn, isOwner, wrapAsync(async (req, res) => {
-    let id = req.params.id;
-    await Listing.findByIdAndDelete(id);
-    req.flash("error", "Listing Deleted!");
-    res.redirect("/listings");
-}));
+router.delete("/:id", isLoggedIn, isOwner, wrapAsync(listingController.deleteListing));
 
 module.exports = router;
